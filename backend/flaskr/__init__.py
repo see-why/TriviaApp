@@ -162,16 +162,16 @@ def create_app(test_config=None):
             if search_item:
                 questions = Question.query.order_by(desc(Question.id)).filter(
                 Question.question.ilike('%{}%'.format(search_item))).all()
-
+                
                 page = request.args.get('page', 1, type=int)
                 formatted_questions = paginated_questions(questions,page)
+                print(f"questions {questions}")
 
                 return jsonify({
                     "success": True,
                     "questions" : formatted_questions,
-                    "current_category" : formatted_questions[0]['category'],
+                    "current_category" : formatted_questions[0]['category'] if formatted_questions else "",
                     "total_questions" : len(questions),
-
                 })
         except:
             print (sys.exc_info())
