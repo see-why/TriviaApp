@@ -83,11 +83,11 @@ class QuestionView extends Component {
   };
 
   submitSearch = (searchTerm) => {
-    if (searchTerm == ""){
+    if (searchTerm === ""){
       alert('Please enter a valid search term');
       return;
     }
-    
+
     $.ajax({
       url: `/questions/search`, //TODO: update request URL
       type: 'POST',

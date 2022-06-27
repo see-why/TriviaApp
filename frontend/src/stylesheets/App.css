@@ -13,6 +13,7 @@
   color: dodgerblue;
 }
 
+div.button,
 .App-header > h2:hover {
   cursor: pointer;
 }
