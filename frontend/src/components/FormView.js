@@ -9,8 +9,8 @@ class FormView extends Component {
       question: '',
       answer: '',
       difficulty: 1,
-      category: 1,
-      categories: {},
+      category: 6,
+      categories: [],
     };
   }
 
@@ -19,6 +19,7 @@ class FormView extends Component {
       url: `/categories`, //TODO: update request URL
       type: 'GET',
       success: (result) => {
+        console.log(`categories: ${result.categories}`)
         this.setState({ categories: result.categories });
         return;
       },
@@ -48,6 +49,7 @@ class FormView extends Component {
       crossDomain: true,
       success: (result) => {
         document.getElementById('add-question-form').reset();
+        alert('Question added successfully');
         return;
       },
       error: (error) => {
@@ -91,9 +93,9 @@ class FormView extends Component {
           <label>
             Category
             <select name='category' onChange={this.handleChange}>
-              {Object.keys(this.state.categories).map((id) => {
+              {this.state.categories.map((item) => {
                 return (
-                  <option key={id} value={id}>
+                  <option key={item.id} value={item.id}> {item.type}
                   </option>
                 );
               })}
