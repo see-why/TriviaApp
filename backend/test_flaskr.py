@@ -15,10 +15,15 @@ class TriviaTestCase(unittest.TestCase):
         self.app = create_app()
         self.client = self.app.test_client
         self.database_name = "trivia_test"
-        self.database_path = "postgres://{}:{}@{}/{}".format('oiyadi', 'oyinlola', 'localhost:5432', self.database_name)
+        self.database_path = "postgres://{}:{}@{}/{}".format(
+            'oiyadi', 'oyinlola', 'localhost:5432', self.database_name)
         setup_db(self.app, self.database_path)
 
-        self.new_question = {"question":"Who sang Love goes?", "answer":"Sam Smith", "category":"5", "difficulty":"5"}
+        self.new_question = {
+            "question": "Who sang Love goes?",
+            "answer": "Sam Smith",
+            "category": "5",
+            "difficulty": "5"}
 
         # binds the app to the current context
         with self.app.app_context():
@@ -26,7 +31,7 @@ class TriviaTestCase(unittest.TestCase):
             self.db.init_app(self.app)
             # create all tables
             self.db.create_all()
-    
+
     def tearDown(self):
         """Executed after reach test"""
         pass
@@ -36,6 +41,7 @@ class TriviaTestCase(unittest.TestCase):
     Write at least one test for each test for successful operation and for expected errors.
     """
     # Get questions
+
     def test_get_paginated_questions(self):
         res = self.client().get("/questions")
         data = json.loads(res.data)
@@ -63,7 +69,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data["success"], True)
         self.assertTrue(data["categories"])
-    
+
     def test_405_if_question_creation_not_allowed(self):
         res = self.client().get("/categories/45")
         data = json.loads(res.data)
@@ -71,7 +77,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 405)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "Method not allowed")
-    
+
     # Delete a different question in each attempt
     def test_delete_questions(self):
         res = self.client().delete("/questions/22")
@@ -119,7 +125,10 @@ class TriviaTestCase(unittest.TestCase):
         self.assertTrue(data["total_questions"], 2)
 
     def test_search_questions_without_result(self):
-        res = self.client().post("/questions/search", json={"search": "Serious"})
+        res = self.client().post(
+            "/questions/search",
+            json={
+                "search": "Serious"})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -147,7 +156,15 @@ class TriviaTestCase(unittest.TestCase):
 
     # Get quiz questions
     def test_get_quizzes(self):
-        res = self.client().post("/quizzes", json={"previous_questions":[1,2], "quiz_category":{"id":"2", "type":"Art"}})
+        res = self.client().post(
+            "/quizzes",
+            json={
+                "previous_questions": [
+                    1,
+                    2],
+                "quiz_category": {
+                    "id": "2",
+                    "type": "Art"}})
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 200)
@@ -162,6 +179,7 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(res.status_code, 422)
         self.assertEqual(data["success"], False)
         self.assertEqual(data["message"], "Cannot process request")
+
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
