@@ -230,21 +230,23 @@ def create_app(test_config=None):
             quiz_category = body.get("quiz_category",None)
 
             if quiz_category:
-                question = Question.query.order_by(desc(Question.id)).filter(
+                if quiz_category['id']== 0:
+                    question = Question.query.order_by(desc(Question.id)).filter(
+                Question.id.notin_(previous_questions)).first()
+                else:
+                    question = Question.query.order_by(desc(Question.id)).filter(
                 Question.id.notin_(previous_questions)).filter(Question.category == quiz_category['id']).first()
-
-                if question is None:
-                    abort(404)
 
                 if previous_questions is None:
                     previous_questions = []
 
-                previous_questions.append(question.id)
+                if question:
+                    previous_questions.append(question.id)
                 
                 return jsonify({
                     "success": True,
                     "previousQuestions" : previous_questions,
-                    "question" : question.format()
+                    "question" : question.format() if question else question
                 })
         except:
             print (sys.exc_info())
