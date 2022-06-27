@@ -17,6 +17,11 @@ def paginated_questions(questions,page):
     formatted_questions = [ question.format() for question in questions ]
     return formatted_questions[start:end]
 
+def current_category(id, categories):
+    for category in categories:
+        if category.id == id:
+            return category.type
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
@@ -77,12 +82,13 @@ def create_app(test_config=None):
         if len(formatted_questions) == 0:
                     abort(404)
 
+        current_category_type = current_category(formatted_questions[0]['category'], categories)
 
         return jsonify({
             "success": True,
             "questions" : formatted_questions,
             "total_questions" : len(questions),
-            "current_category" : formatted_questions[0]['category'],
+            "current_category" : current_category_type,
             "categories" : formatted_categories
         })
     """
@@ -162,6 +168,7 @@ def create_app(test_config=None):
             if search_item:
                 questions = Question.query.order_by(desc(Question.id)).filter(
                 Question.question.ilike('%{}%'.format(search_item))).all()
+                categories = Category.query.order_by(desc(Category.id)).all()
                 
                 page = request.args.get('page', 1, type=int)
                 formatted_questions = paginated_questions(questions,page)
@@ -170,7 +177,7 @@ def create_app(test_config=None):
                 return jsonify({
                     "success": True,
                     "questions" : formatted_questions,
-                    "current_category" : formatted_questions[0]['category'] if formatted_questions else "",
+                    "current_category" : current_category(formatted_questions[0]['category'], categories) if formatted_questions else "",
                     "total_questions" : len(questions),
                 })
         except:
