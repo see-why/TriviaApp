@@ -83,12 +83,17 @@ class QuestionView extends Component {
   };
 
   submitSearch = (searchTerm) => {
+    if (searchTerm == ""){
+      alert('Please enter a valid search term');
+      return;
+    }
+    
     $.ajax({
-      url: `/questions`, //TODO: update request URL
+      url: `/questions/search`, //TODO: update request URL
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
-      data: JSON.stringify({ searchTerm: searchTerm }),
+      data: JSON.stringify({ search: searchTerm }),
       xhrFields: {
         withCredentials: true,
       },
@@ -106,6 +111,14 @@ class QuestionView extends Component {
         return;
       },
     });
+  };
+
+  returnCategory = (id) => {
+      for (var item of this.state.categories) {
+        if (item.id === id){
+          return item
+        }
+    }
   };
 
   questionAction = (id) => (action) => {
@@ -162,7 +175,7 @@ class QuestionView extends Component {
               key={q.id}
               question={q.question}
               answer={q.answer}
-              category={this.state.categories[q.category]}
+              category={ this.returnCategory(q.category)}
               difficulty={q.difficulty}
               questionAction={this.questionAction(q.id)}
             />
