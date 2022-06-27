@@ -17,6 +17,11 @@ def paginated_questions(questions,page):
     formatted_questions = [ question.format() for question in questions ]
     return formatted_questions[start:end]
 
+def current_category(id, categories):
+    for category in categories:
+        if category.id == id:
+            return category.type
+
 def create_app(test_config=None):
     # create and configure the app
     app = Flask(__name__)
@@ -77,12 +82,13 @@ def create_app(test_config=None):
         if len(formatted_questions) == 0:
                     abort(404)
 
+        current_category_type = current_category(formatted_questions[0]['category'], categories)
 
         return jsonify({
             "success": True,
             "questions" : formatted_questions,
             "total_questions" : len(questions),
-            "current_category" : formatted_questions[0]['category'],
+            "current_category" : current_category_type,
             "categories" : formatted_categories
         })
     """
@@ -162,6 +168,7 @@ def create_app(test_config=None):
             if search_item:
                 questions = Question.query.order_by(desc(Question.id)).filter(
                 Question.question.ilike('%{}%'.format(search_item))).all()
+                categories = Category.query.order_by(desc(Category.id)).all()
                 
                 page = request.args.get('page', 1, type=int)
                 formatted_questions = paginated_questions(questions,page)
@@ -170,7 +177,7 @@ def create_app(test_config=None):
                 return jsonify({
                     "success": True,
                     "questions" : formatted_questions,
-                    "current_category" : formatted_questions[0]['category'] if formatted_questions else "",
+                    "current_category" : current_category(formatted_questions[0]['category'], categories) if formatted_questions else "",
                     "total_questions" : len(questions),
                 })
         except:
@@ -187,7 +194,6 @@ def create_app(test_config=None):
     @app.route('/categories/<int:category_id>/questions')
     def get_questions_by_category(category_id):
         category = Category.query.filter(Category.id == category_id).one_or_none()
-        print ("category: {category}")
 
         if category is None:
                 abort(404)
@@ -224,21 +230,23 @@ def create_app(test_config=None):
             quiz_category = body.get("quiz_category",None)
 
             if quiz_category:
-                question = Question.query.order_by(desc(Question.id)).filter(
+                if quiz_category['id']== 0:
+                    question = Question.query.order_by(desc(Question.id)).filter(
+                Question.id.notin_(previous_questions)).first()
+                else:
+                    question = Question.query.order_by(desc(Question.id)).filter(
                 Question.id.notin_(previous_questions)).filter(Question.category == quiz_category['id']).first()
-
-                if question is None:
-                    abort(404)
 
                 if previous_questions is None:
                     previous_questions = []
 
-                previous_questions.append(question.id)
+                if question:
+                    previous_questions.append(question.id)
                 
                 return jsonify({
                     "success": True,
                     "previousQuestions" : previous_questions,
-                    "question" : question.format()
+                    "question" : question.format() if question else question
                 })
         except:
             print (sys.exc_info())

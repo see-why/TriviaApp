@@ -105,7 +105,7 @@ The API will return three error types when requests fail:
       "type": "Science"
     }
   ],
-  "current_category": 4,
+  "current_category": "Entertainment",
   "questions": [
     {
       "answer": "Scarab",
@@ -290,7 +290,7 @@ The API will return three error types when requests fail:
 
 ```
 {
-  "current_category": 6,  
+  "current_category": "Sports",  
   "questions": [
     {
       "answer": "Brazil", 

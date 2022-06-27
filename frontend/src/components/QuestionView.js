@@ -11,7 +11,7 @@ class QuestionView extends Component {
       questions: [],
       page: 1,
       totalQuestions: 0,
-      categories: {},
+      categories: [],
       currentCategory: null,
     };
   }
@@ -83,12 +83,17 @@ class QuestionView extends Component {
   };
 
   submitSearch = (searchTerm) => {
+    if (searchTerm === ""){
+      alert('Please enter a valid search term');
+      return;
+    }
+
     $.ajax({
-      url: `/questions`, //TODO: update request URL
+      url: `/questions/search`, //TODO: update request URL
       type: 'POST',
       dataType: 'json',
       contentType: 'application/json',
-      data: JSON.stringify({ searchTerm: searchTerm }),
+      data: JSON.stringify({ search: searchTerm }),
       xhrFields: {
         withCredentials: true,
       },
@@ -106,6 +111,14 @@ class QuestionView extends Component {
         return;
       },
     });
+  };
+
+  returnCategory = (id) => {
+      for (var item of this.state.categories) {
+        if (item.id === id){
+          return item
+        }
+    }
   };
 
   questionAction = (id) => (action) => {
@@ -138,18 +151,17 @@ class QuestionView extends Component {
             Categories
           </h2>
           <ul>
-            {Object.keys(this.state.categories).map((id) => (
+            {this.state.categories.map((item) => (
               <li
-                key={id}
+                key={item.id}
                 onClick={() => {
-                  this.getByCategory(id);
+                  this.getByCategory(item.id);
                 }}
-              >
-                {this.state.categories[id]}
+              >               
                 <img
                   className='category'
-                  alt={`${this.state.categories[id].toLowerCase()}`}
-                  src={`${this.state.categories[id].toLowerCase()}.svg`}
+                  alt={`${item.type.toLowerCase()}`}
+                  src={`${item.type.toLowerCase()}.svg`}
                 />
               </li>
             ))}
@@ -163,7 +175,7 @@ class QuestionView extends Component {
               key={q.id}
               question={q.question}
               answer={q.answer}
-              category={this.state.categories[q.category]}
+              category={ this.returnCategory(q.category)}
               difficulty={q.difficulty}
               questionAction={this.questionAction(q.id)}
             />
